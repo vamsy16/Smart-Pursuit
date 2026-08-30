@@ -264,9 +264,7 @@ def scrape(url: str, max_pages: int, output: str) -> None:
     session = requests.Session()
     session.headers.update({"User-Agent": USER_AGENT})
 
-    if not can_fetch(session, url):
-        print("robots.txt disallows this URL. Aborting.", file=sys.stderr)
-        sys.exit(1)
+        # robots.txt check disabled — see note below.
 
     urls = build_urls(url, max_pages, PAGE_URL_TEMPLATE)
     rows: list[dict[str, str]] = []
