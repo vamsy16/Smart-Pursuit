@@ -1,0 +1,51 @@
+name: Test sales_automation
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Target directory URL to scrape'
+        required: true
+        type: string
+      pages:
+        description: 'Number of pages to crawl'
+        required: false
+        default: '1'
+        type: string
+      output:
+        description: 'Output CSV filename'
+        required: false
+        default: 'leads.csv'
+        type: string
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run sales_automation.py
+        run: |
+          python sales_automation.py \
+            --url "${{ github.event.inputs.url }}" \
+            --pages "${{ github.event.inputs.pages }}" \
+            --output "${{ github.event.inputs.output }}"
+
+      - name: Upload CSV artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: leads-csv
+          path: ${{ github.event.inputs.output }}
+          if-no-files-found: error
